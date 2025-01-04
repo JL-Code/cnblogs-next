@@ -62,6 +62,14 @@
     {
       "name": "uicomponents",
       "srcPath": "./commons/uicomponents",
+    },
+    {
+      "name": "learning",
+      "srcPath": "./features/learning",
+    },
+    {
+      "name": "map",
+      "srcPath": "./features/map",
     }
   ]
 }

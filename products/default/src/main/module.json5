@@ -11,6 +11,13 @@
     "deliveryWithInstall": true,
     "installationFree": true,
     "pages": "$profile:main_pages",
+
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET",
+        "reason": "$string:apply_for_network"
+      }
+    ],
     "abilities": [
       {
         "name": "EntryAbility",
