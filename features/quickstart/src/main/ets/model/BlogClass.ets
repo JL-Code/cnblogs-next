@@ -1,25 +1,28 @@
 export class BlogClass {
-  constructor(id: string, title: string, summary: string, img: ResourceStr, author: string, createdAt: string,
-    viewCount: number,
-    likeCount: number, commentCount: number) {
-    this.id = id
-    this.title = title
-    this.summary = summary
-    this.img = img
-    this.author = author
-    this.createdAt = createdAt
-    this.viewCount = viewCount
-    this.likeCount = likeCount
-    this.commentCount = commentCount
+  constructor(Author: string, Avatar: string, BlogApp: null, CommentCount: number, Description: string,
+    DiggCount: number, Id: number, PostDate: string, Title: string, Url: string, ViewCount: number) {
+    this.Author = Author;
+    this.Avatar = Avatar;
+    this.BlogApp = BlogApp;
+    this.CommentCount = CommentCount;
+    this.Description = Description;
+    this.DiggCount = DiggCount;
+    this.Id = Id;
+    this.PostDate = PostDate;
+    this.Title = Title;
+    this.Url = Url;
+    this.ViewCount = ViewCount;
   }
 
-  id: string = '';
-  title: string = '';
-  summary: string = '';
-  img: ResourceStr = '';
-  author: string = '';
-  createdAt: string = '';
-  viewCount: number = 0;
-  likeCount: number = 0;
-  commentCount: number = 0;
+  Author: string;
+  Avatar: string;
+  BlogApp: null;
+  CommentCount: number;
+  Description: string;
+  DiggCount: number;
+  Id: number;
+  PostDate: string;
+  Title: string;
+  Url: string;
+  ViewCount: number;
 }

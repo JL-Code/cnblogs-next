@@ -1,63 +1,21 @@
 import { BlogClass } from "../model/BlogClass"
+import { bufferToString } from "../util/BufferUtil";
 
 @Preview
 @Component
 export struct BlogView {
-  @State blogList: Array<BlogClass> = [
-    new BlogClass('1', '大语言模型提示技巧（二）－给模型时间思考',
-      '在与大语言模型交互的时候，如果模型给出了错误的结论，不要着急否定大模型的能力，我们应当尝试重新构建查询，请求模型在提供它的最终答案之前进行一系列相关的推理。也就是说，如果给模型一个在短时间或用少量文字无法完成的任务，它可能会给出不那么完美甚至是错误的回答。其实这种情况对人类来说也是存在的'
-      , $r('app.media.enablement_pic1'),
-      '光头颜',
-      '2025-1-4 10:49',
-      0,
-      10,
-      109
-    ),
-    new BlogClass('2', '大语言模型提示技巧（二）－给模型时间思考',
-      '在与大语言模型交互的时候，如果模型给出了错误的结论，不要着急否定大模型的能力，我们应当尝试重新构建查询，请求模型在提供它的最终答案之前进行一系列相关的推理。也就是说，如果给模型一个在短时间或用少量文字无法完成的任务，它可能会给出不那么完美甚至是错误的回答。其实这种情况对人类来说也是存在的'
-      , $r('app.media.enablement_pic1'),
-      '光头颜',
-      '2025-1-4 10:49',
-      0,
-      10,
-      109
-    ),
-    new BlogClass('3', '大语言模型提示技巧（二）－给模型时间思考',
-      '在与大语言模型交互的时候，如果模型给出了错误的结论，不要着急否定大模型的能力，我们应当尝试重新构建查询，请求模型在提供它的最终答案之前进行一系列相关的推理。也就是说，如果给模型一个在短时间或用少量文字无法完成的任务，它可能会给出不那么完美甚至是错误的回答。其实这种情况对人类来说也是存在的'
-      , $r('app.media.enablement_pic1'),
-      '光头颜',
-      '2025-1-4 10:49',
-      0,
-      10,
-      109
-    ),
-    new BlogClass('4', '大语言模型提示技巧（二）－给模型时间思考',
-      '在与大语言模型交互的时候，如果模型给出了错误的结论，不要着急否定大模型的能力，我们应当尝试重新构建查询，请求模型在提供它的最终答案之前进行一系列相关的推理。也就是说，如果给模型一个在短时间或用少量文字无法完成的任务，它可能会给出不那么完美甚至是错误的回答。其实这种情况对人类来说也是存在的'
-      , $r('app.media.enablement_pic1'),
-      '光头颜',
-      '2025-1-4 10:49',
-      0,
-      10,
-      109
-    ),
-    new BlogClass('5', '大语言模型提示技巧（二）－给模型时间思考',
-      '在与大语言模型交互的时候，如果模型给出了错误的结论，不要着急否定大模型的能力，我们应当尝试重新构建查询，请求模型在提供它的最终答案之前进行一系列相关的推理。也就是说，如果给模型一个在短时间或用少量文字无法完成的任务，它可能会给出不那么完美甚至是错误的回答。其实这种情况对人类来说也是存在的'
-      , $r('app.media.enablement_pic1'),
-      '光头颜',
-      '2025-1-4 10:49',
-      0,
-      10,
-      109
-    ), new BlogClass('6', '大语言模型提示技巧（二）－给模型时间思考',
-    '在与大语言模型交互的时候，如果模型给出了错误的结论，不要着急否定大模型的能力，我们应当尝试重新构建查询，请求模型在提供它的最终答案之前进行一系列相关的推理。也就是说，如果给模型一个在短时间或用少量文字无法完成的任务，它可能会给出不那么完美甚至是错误的回答。其实这种情况对人类来说也是存在的'
-    , $r('app.media.enablement_pic1'),
-    '光头颜',
-    '2025-1-4 10:49',
-    0,
-    10,
-    109
-  )
-  ]
+  @State blogList: Array<BlogClass> = [];
+  @Consume('articlePathStack') articlePathStack: NavPathStack;
+
+  aboutToAppear(): void {
+    this.getTutorialDataFromJSON()
+  }
+
+  getTutorialDataFromJSON() {
+    getContext(this).resourceManager.getRawFileContent('BlogData.json').then(value => {
+      this.blogList = JSON.parse(bufferToString(value)) as BlogClass[];
+    })
+  }
 
   build() {
     Column() {
@@ -73,8 +31,11 @@ export struct BlogView {
         ForEach(this.blogList, (item: BlogClass) => {
           ListItem() {
             BlogItem({ blogItem: item })
+              .onClick(() => {
+                this.articlePathStack.pushPathByName('articleDetail', item)
+              })
           }
-        }, (item: BlogClass) => item.id)
+        }, (item: BlogClass) => item.Id.toString())
       }
       .scrollBar(BarState.Off)
       .padding({ left: 16, right: 16 })
@@ -91,19 +52,19 @@ struct BlogItem {
   build() {
     Column({ space: 8 }) {
       // header
-      Text(this.blogItem.title)
+      Text(this.blogItem.Title)
         .fontSize(14)
         .fontWeight(700)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .maxLines(1)
       //  body
       Row({ space: 8 }) {
-        Image(this.blogItem.img)
+        Image(this.blogItem.Avatar)
           .height(64)
           .width(64)
           .objectFit(ImageFit.Cover)
           .borderRadius(8)
-        Text(this.blogItem.summary)
+        Text(this.blogItem.Description)
           .fontSize(12)
           .layoutWeight(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -113,19 +74,19 @@ struct BlogItem {
 
       // footer
       Row() {
-        Text(this.blogItem.author)
+        Text(this.blogItem.Author)
           .fontSize(13)
           .fontColor('#4e4099')
-        Text(this.blogItem.createdAt)
+        Text(this.blogItem.PostDate)
           .fontSize(13)
           .fontColor(Color.Gray)
-        Text(this.blogItem.commentCount.toString())
+        Text(this.blogItem.CommentCount.toString())
           .fontSize(13)
           .fontColor(Color.Gray)
-        Text(this.blogItem.likeCount.toString())
+        Text(this.blogItem.DiggCount.toString())
           .fontSize(13)
           .fontColor(Color.Gray)
-        Text(this.blogItem.viewCount.toString())
+        Text(this.blogItem.ViewCount.toString())
           .fontSize(13)
           .fontColor(Color.Gray)
       }
