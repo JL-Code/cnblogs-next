@@ -87,40 +87,44 @@ export struct KnowledgeMapContent {
   }
 
   build() {
-    Scroll() {
-      Column() {
-        // title
-        Text(this.section?.title)
-          .fontFamily('HarmonyHeiTi-Bold')
-          .fontSize(20)
-          .fontWeight(700)
-          .fontColor(Color.Black)
-        // brief
-        Text(this.section?.brief)
-          .fontFamily('HarmonyHeiTi')
-          .fontSize(12)
-          .fontColor('rgba(0,0,0,0.60)')
-          .textAlign(TextAlign.JUSTIFY)
-          .fontWeight(400)
-          .margin({ top: 12 })
-        // materials
-        ForEach(this.section?.materials, (material: Material) => {
-          this.KnowledgeBlock(material)
-        }, (material: Material) => material.subtitle)
+    // 在组件路由导航中，内容区都需要使用NavDestination组件进行包裹，否则会导致点击后内容区为白屏。
+    NavDestination() {
+      Scroll() {
+        Column() {
+          // title
+          Text(this.section?.title)
+            .fontFamily('HarmonyHeiTi-Bold')
+            .fontSize(20)
+            .fontWeight(700)
+            .fontColor(Color.Black)
+          // brief
+          Text(this.section?.brief)
+            .fontFamily('HarmonyHeiTi')
+            .fontSize(12)
+            .fontColor('rgba(0,0,0,0.60)')
+            .textAlign(TextAlign.JUSTIFY)
+            .fontWeight(400)
+            .margin({ top: 12 })
+          // materials
+          ForEach(this.section?.materials, (material: Material) => {
+            this.KnowledgeBlock(material)
+          }, (material: Material) => material.subtitle)
+        }
+        .alignItems(HorizontalAlign.Start)
+        .padding({
+          top: 12,
+          left: 16,
+          bottom: 12,
+          right: 16
+        })
       }
-      .alignItems(HorizontalAlign.Start)
-      .padding({
-        top: 12,
-        left: 16,
-        bottom: 12,
-        right: 16
-      })
+      .align(Alignment.TopStart)
+      .constraintSize({ minHeight: '100%' })
+      .edgeEffect(EdgeEffect.Spring)
+      .scrollable(ScrollDirection.Vertical)
+      .scrollBar(BarState.Auto)
+      .backgroundColor('#F1F3F5')
     }
-    .align(Alignment.TopStart)
-    .constraintSize({ minHeight: '100%' })
-    .edgeEffect(EdgeEffect.Spring)
-    .scrollable(ScrollDirection.Vertical)
-    .scrollBar(BarState.Auto)
-    .backgroundColor('#F1F3F5')
+    .hideTitleBar(true)
   }
 }

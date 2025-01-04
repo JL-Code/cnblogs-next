@@ -6,6 +6,7 @@ import { QuickStartPage } from 'quickstart'
 @Component
 struct Index {
   @State currentIndex: number = 0;
+  private tabsController: TabsController = new TabsController();
 
   @Builder
   tabBarBuilder(title: string, targetIndex: number, selectedIcon: Resource, unselectIcon: Resource) {
@@ -25,10 +26,14 @@ struct Index {
     .height('100%')
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
+    .onClick(() => {
+      this.currentIndex = targetIndex;
+      this.tabsController.changeIndex(targetIndex);
+    })
   }
 
   build() {
-    Tabs({ barPosition: BarPosition.End }) {
+    Tabs({ barPosition: BarPosition.End, controller: this.tabsController }) {
       TabContent() {
         QuickStartPage()
       }

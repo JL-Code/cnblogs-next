@@ -4,7 +4,7 @@ import { BlogView } from '../view/BlogView';
 
 @Component
 export struct QuickStartPage {
-  @State message: string = '首页'
+  @State message: string = '快速入门'
 
   build() {
     Column() {
