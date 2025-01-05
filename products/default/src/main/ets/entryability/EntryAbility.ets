@@ -1,9 +1,13 @@
 import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import { HttpUtil, PreferencesUtil } from 'utils'
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam): void {
+    // 设置一个用户首选项工具类
+    PreferencesUtil.setup(this.context)
+    HttpUtil.getAndStoreToken();
     hilog.info(0x0000, 'testTag', '%{public}s', 'Ability onCreate');
   }
 

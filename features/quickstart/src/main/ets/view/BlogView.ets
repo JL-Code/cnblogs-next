@@ -1,6 +1,8 @@
 import { BlogClass } from "../model/BlogClass"
-import { bufferToString } from "../util/BufferUtil";
+import { bufferToString } from "../common/util/BufferUtil";
 import { http } from '@kit.NetworkKit';
+import { promptAction } from "@kit.ArkUI";
+import { PreferencesUtil } from "utils";
 
 const httpRequest = http.createHttp();
 
@@ -22,10 +24,11 @@ export struct BlogView {
   }
 
   getDataFromHttpRequest() {
+    const token: string = PreferencesUtil.getToken().access_token;
     httpRequest.request('https://api.cnblogs.com/api/blogposts/@sitehome', {
       method: http.RequestMethod.GET,
       header: {
-        "Authorization": "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6IkYyQ0Y5OEU3QTM0NDVGRTU1MkEzOTc5MkUyRDRCQ0M5ODBERTg3NTMiLCJ0eXAiOiJhdCtqd3QiLCJ4NXQiOiI4cy1ZNTZORVgtVlNvNWVTNHRTOHlZRGVoMU0ifQ.eyJuYmYiOjE3MzYwMTE4NTQsImV4cCI6MTczNjAyMjY1NCwiaXNzIjoiaHR0cDovL29wZW5hcGlfb2F1dGgtc2VydmVyIiwiYXVkIjoiQ25CbG9nc0FwaSIsImNsaWVudF9pZCI6Ijg5MzhkMWMxLWJmMmEtNDQyMS05NzhiLTNjMzZhMDM1ZTU4NSIsImp0aSI6IkYxMDY0RTMzQjU5QzE3Mzc1ODMwN0YwNTAzNDUzMDE5IiwiaWF0IjoxNzM2MDExODU0LCJzY29wZSI6WyJDbkJsb2dzQXBpIl19.Gl6Ofw_tMNMmG4QIpNUU-cO_8KZbDzfZLwllko7FNsNx6B9TFeHvXIL_rDR9WzKhd4mHSCoPpAFmD5fZItaD65v_IhmoYH5L2r86ywq3LF0H3ryi9bWHyq404KeNe1Pfp61nQwPpSb8Muovh2_9qe45TA6R966DNfBPz-KxdhpSYfillioweZ1rH61-yo6w86DVm86GeNyobO6wwOcXz9JKnkCGwtbigZS40xUOQ00vTBwZP5BRzCIb8LOCJbTaj3BpZGr2A1dWtCHMrncINQMVjDfFi3WJ4Ct5lPFwWx_HheJIwvolFIeaDqF-I_r1yIGaN1Iac-uk7dRD6lfcFDQ"
+        "Authorization": "Bearer " + token
       },
       extraData: {
         pageIndex: 1,
@@ -66,6 +69,11 @@ export struct BlogView {
       }
       .scrollBar(BarState.Off)
       .padding({ left: 16, right: 16 })
+      .onReachEnd(() => {
+        promptAction.showToast({
+          message: '列表已经到末尾位置了'
+        })
+      })
     }
     .margin({ top: 18 })
     .alignItems(HorizontalAlign.Start)
