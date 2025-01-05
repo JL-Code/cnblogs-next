@@ -5,6 +5,12 @@
     "deviceTypes": [
       "default",
       "tablet"
+    ],
+    "requestPermissions": [
+      {
+        "name": "ohos.permission.INTERNET",
+        "reason": "$string:apply_for_network"
+      }
     ]
   }
 }

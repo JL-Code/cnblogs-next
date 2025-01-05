@@ -4,9 +4,10 @@ import { BlogClass } from "../model/BlogClass";
 @Component
 export struct ArticleDetailPage {
   @State articleDetail: BlogClass | null = null;
+  @State body: string = '';
   @Consume('articlePathStack') articlePathStack: NavPathStack;
 
-  aboutToAppear(): void {
+  async aboutToAppear(): Promise<void> {
     this.articleDetail = this.articlePathStack.getParamByName('articleDetail')[0] as BlogClass;
   }
 
@@ -32,17 +33,16 @@ export struct ArticleDetailPage {
                 .maxLines(1)
                 .fontWeight(700)
                 .margin({ left: 8 })
-            }
+            }.layoutWeight(1)
           }
-          .width('80%')
+          .width('100%')
         }
         .justifyContent(FlexAlign.SpaceBetween)
         .width('100%')
         .height(56)
 
-        WebComponent({ articleDetail: this.articleDetail })
+        WebComponent({ articleId: this.articleDetail?.Id })
       }
-      .padding({ left: 16, right: 16 })
       .width('100%')
       .height('100%')
       .justifyContent(FlexAlign.SpaceBetween)
@@ -53,12 +53,12 @@ export struct ArticleDetailPage {
 
 @Component
 struct WebComponent {
-  @Prop articleDetail: BlogClass | null;
+  @Prop articleId: number;
   private webviewController: webview.WebviewController = new webview.WebviewController();
 
   build() {
     Column() {
-      Web({ src: this.articleDetail?.Url, controller: this.webviewController })
+      Web({ src: $rawfile('html/index.html'), controller: this.webviewController })
         .darkMode(WebDarkMode.Auto)
         .domStorageAccess(true)
         .zoomAccess(true)
@@ -68,6 +68,16 @@ struct WebComponent {
         .javaScriptAccess(true)
         .width('100%')
         .layoutWeight(1)
+        .onPageEnd(e => {
+          try {
+            this.webviewController.runJavaScript(`render(${this.articleId})`)
+              .then((result) => {
+                console.log('result:' + result)
+              })
+          } catch (error) {
+            console.log('error:' + error)
+          }
+        })
     }
   }
 }

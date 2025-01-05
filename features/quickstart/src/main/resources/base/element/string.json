@@ -3,6 +3,10 @@
     {
       "name": "page_show",
       "value": "page from package"
+    },
+    {
+      "name": "apply_for_network",
+      "value": "Allow the app to access the network"
     }
   ]
 }
