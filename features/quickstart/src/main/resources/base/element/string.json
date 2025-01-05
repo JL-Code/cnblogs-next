@@ -7,6 +7,10 @@
     {
       "name": "apply_for_network",
       "value": "Allow the app to access the network"
+    },
+    {
+      "name": "web_alert_dialog_button_value",
+      "value": "Confirm"
     }
   ]
 }

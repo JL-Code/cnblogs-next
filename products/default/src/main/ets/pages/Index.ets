@@ -1,4 +1,3 @@
-import { CourseLearning } from 'learning'
 import { KnowledgeMap } from 'map'
 import { QuickStartPage } from 'quickstart'
 import { hilog } from '@kit.PerformanceAnalysisKit'
@@ -47,15 +46,15 @@ struct Index {
       }
       .tabBar(this.tabBarBuilder('快速入门', 0, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
 
-      TabContent() {
-        CourseLearning()
-      }
-      .tabBar(this.tabBarBuilder('课程学习', 1, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
+      // TabContent() {
+      //   CourseLearning()
+      // }
+      // .tabBar(this.tabBarBuilder('课程学习', 1, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
 
       TabContent() {
         KnowledgeMap()
       }
-      .tabBar(this.tabBarBuilder('知识地图', 2, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
+      .tabBar(this.tabBarBuilder('知识地图', 1, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
     }
     .scrollable(false)
     .vertical(false)
@@ -63,7 +62,5 @@ struct Index {
       strokeWidth: 0.5,
       color: '#0D182431'
     })
-    .backgroundColor('#F1F3F5')
-    .padding({ top: 36, bottom: 28 })
   }
 }

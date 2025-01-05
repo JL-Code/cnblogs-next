@@ -1,83 +1,82 @@
 import { webview } from "@kit.ArkWeb";
+import { HttpUtil } from "utils";
 import { BlogClass } from "../model/BlogClass";
+import { ComposeTitleBar, EditableLeftIconType, EditableTitleBar, promptAction } from "@kit.ArkUI";
+
+/**
+ * WebView与原生应用的连接类
+ */
+class LinkClass {
+  messageFromHtml(value: string) {
+    AlertDialog.show({
+      message: '来自 html 发送的弹窗消息: ' + value,
+      confirm: {
+        value: $r('app.string.web_alert_dialog_button_value'),
+        action: () => {
+          console.log("action")
+        }
+      },
+      cancel: () => {
+        console.log("cancel")
+      }
+    });
+  }
+}
 
 @Component
 export struct ArticleDetailPage {
-  @State articleDetail: BlogClass | null = null;
-  @State body: string = '';
+  @State articleItem: BlogClass | null = null;
+  @State linkObj: LinkClass = new LinkClass();
   @Consume('articlePathStack') articlePathStack: NavPathStack;
+  private webController: webview.WebviewController = new webview.WebviewController();
 
   async aboutToAppear(): Promise<void> {
-    this.articleDetail = this.articlePathStack.getParamByName('articleDetail')[0] as BlogClass;
+    this.articleItem = this.articlePathStack.getParamByName('articleDetail')[0] as BlogClass;
+  }
+
+  removeQuotes(str: string) {
+    return str.replace(/^"|"$/g, '');
   }
 
   build() {
     NavDestination() {
       Column() {
-        Row() {
-          // 页面顶栏
-          Row() {
-            Image($r('app.media.ic_back'))
-              .width(40)
-              .height(40)
-              .onClick(() => {
-                this.articlePathStack.pop()
-              })
-            // 使用 row 包裹 Text 实现文字超长省略效果
-            Row() {
-              Text(this.articleDetail?.Title)
-                .fontFamily('HarmonyHeiTi-Bold')
-                .fontSize(20)
-                .textAlign(TextAlign.Start)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
-                .maxLines(1)
-                .fontWeight(700)
-                .margin({ left: 8 })
-            }.layoutWeight(1)
-          }
+        EditableTitleBar({
+          title: this.articleItem?.Title,
+          imageItem: {
+            value: this.articleItem!.Avatar,
+            isEnabled: true
+          },
+          // 设置背景模糊效果
+          options: {
+            backgroundBlurStyle: BlurStyle.COMPONENT_THICK,
+          },
+        })
+        //定义带头像的标题栏
+        // ComposeTitleBar({
+        //   title: this.articleItem?.Title,
+        //   item: { isEnabled: true, value: this.articleItem!.Avatar }
+        // })
+        Web({ src: $rawfile('h5/index.html'), controller: this.webController, })
+          .darkMode(WebDarkMode.Auto)
+          .javaScriptAccess(true)
           .width('100%')
-        }
-        .justifyContent(FlexAlign.SpaceBetween)
-        .width('100%')
-        .height(56)
-
-        WebComponent({ articleId: this.articleDetail?.Id })
+          .margin({ bottom: 56 })
+          .javaScriptProxy({
+            object: this.linkObj,
+            name: 'linkObj',
+            methodList: ['messageFromHtml'],
+            controller: this.webController
+          })
+          .onPageEnd(async () => {
+            const body = await HttpUtil.getBlogBody(this.articleItem!.Id)
+            this.webController.runJavaScript('loadData(`' + this.removeQuotes(body) + '`)')
+          })
       }
       .width('100%')
       .height('100%')
       .justifyContent(FlexAlign.SpaceBetween)
     }
     .hideTitleBar(true)
-  }
-}
-
-@Component
-struct WebComponent {
-  @Prop articleId: number;
-  private webviewController: webview.WebviewController = new webview.WebviewController();
-
-  build() {
-    Column() {
-      Web({ src: $rawfile('html/index.html'), controller: this.webviewController })
-        .darkMode(WebDarkMode.Auto)
-        .domStorageAccess(true)
-        .zoomAccess(true)
-        .fileAccess(true)
-        .mixedMode(MixedMode.All)
-        .cacheMode(CacheMode.None)
-        .javaScriptAccess(true)
-        .width('100%')
-        .layoutWeight(1)
-        .onPageEnd(e => {
-          try {
-            this.webviewController.runJavaScript(`render(${this.articleId})`)
-              .then((result) => {
-                console.log('result:' + result)
-              })
-          } catch (error) {
-            console.log('error:' + error)
-          }
-        })
-    }
   }
 }

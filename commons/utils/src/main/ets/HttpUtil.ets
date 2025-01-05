@@ -53,6 +53,24 @@ export class HttpUtil {
     }
   }
 
+  async getBlogBody(id: number) {
+    const url = this.buildUrl(`/api/blogposts/${id}/body`)
+    const httpRequest = http.createHttp();
+    const tokenInfo = await PreferencesUtil.getToken()
+    const value: http.HttpResponse = await httpRequest.request(url, {
+      header: {
+        "Authorization": "Bearer " + tokenInfo.access_token
+      }
+    })
+    if (value.responseCode === http.ResponseCode.OK) {
+      hilog.info(0x0000, TAG, "getBlogBody response %{public}s", value.result)
+      return value.result as string;
+    } else {
+      hilog.error(0x0000, TAG, "getBlogBody error %{public}s", value.result)
+      return ""
+    }
+  }
+
   buildUrl(api: string) {
     const url = `${Const.API_BASE}${api}`
     hilog.info(0x0000, TAG, "buildUrl: %{public}s", url)

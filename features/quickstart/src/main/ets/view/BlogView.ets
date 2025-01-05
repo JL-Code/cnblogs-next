@@ -13,7 +13,7 @@ const TAG = 'BlogView';
 export struct BlogView {
   @State isRefreshing: boolean = false
   @State hasMoreData: boolean = true
-  @State isLoadingMore: boolean = false
+  @State isListReachEnd: boolean = false
   @State pageIndex: number = 1;
   @State pageSize: number = 10;
   @State blogList: Array<BlogClass> = [];
@@ -21,7 +21,7 @@ export struct BlogView {
 
   aboutToAppear(): void {
     hilog.info(0x0000, TAG, 'aboutToAppear getDataFromHttpRequest')
-    this.getDataFromHttpRequest()
+    // this.getDataFromHttpRequest()
   }
 
   async getDataFromHttpRequest(pullDownRefresh: boolean = true) {
@@ -30,32 +30,33 @@ export struct BlogView {
     if (pullDownRefresh) {
       this.pageIndex = 1;
     } else {
-      this.isLoadingMore = true
-      this.pageIndex += 1;
+      this.isListReachEnd = true
     }
-    httpRequest.request('https://api.cnblogs.com/api/blogposts/@sitehome', {
-      method: http.RequestMethod.GET,
-      header: {
-        "Authorization": "Bearer " + tokenInfo.access_token
-      },
-      extraData: {
-        pageIndex: this.pageIndex,
-        pageSize: this.pageSize
-      }
-    })
+    httpRequest.request(`https://api.cnblogs.com/api/blogposts/@sitehome?pageIndex=${this.pageIndex}&pageSize=${this.pageSize}`,
+      {
+        method: http.RequestMethod.GET,
+        header: {
+          "Authorization": "Bearer " + tokenInfo.access_token
+        }
+      })
       .then(value => {
         if (value.responseCode === http.ResponseCode.OK) {
-          const blogList = JSON.parse(value.result as string) as BlogClass[];
+          const data = JSON.parse(value.result as string) as BlogClass[];
           // 判断是否还有更多数据
-          this.hasMoreData = blogList.length > this.pageSize
+          if (data.length === this.pageSize) {
+            this.pageIndex++;
+            this.hasMoreData = true;
+          } else {
+            this.hasMoreData = false;
+          }
           if (pullDownRefresh) {
             // 下拉刷新
-            this.blogList = blogList;
+            this.blogList = data;
           } else {
             // 上拉加载更多
-            this.blogList = [...this.blogList, ...blogList]
+            this.blogList = this.blogList.concat(data)
           }
-          hilog.info(0x0000, TAG, "加载完成，获得 %{public}d 条数据", blogList.length)
+          hilog.info(0x0000, TAG, "加载完成，获得 %{public}d 条数据", data.length)
           promptAction.showToast({
             message: '加载完成'
           })
@@ -65,7 +66,7 @@ export struct BlogView {
       })
       .finally(() => {
         this.isRefreshing = false
-        this.isLoadingMore = false
+        this.isListReachEnd = false
       })
   }
 
@@ -81,12 +82,13 @@ export struct BlogView {
                   this.articlePathStack.pushPathByName('articleDetail', item)
                 })
             }
-          }, (_item: BlogClass, index: number) => index.toString())
+          })
         }
         .padding({ left: 16, right: 16 })
+        // @see https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/arkts-rendering-control-foreach-V5#数据源数组项发生变化
         .onReachEnd(() => {
           // 上拉加载更多, onReachEnd 会触发多次，需要做防抖（多次触发仅执行最后一次触发）。
-          if (this.isLoadingMore) {
+          if (this.isListReachEnd) {
             promptAction.showToast({
               message: '请您休息一会儿，再试'
             })
@@ -103,13 +105,16 @@ export struct BlogView {
           })
           this.getDataFromHttpRequest(false);
         })
+
+        // .parallelGesture(
+        //   PanGesture({ direction: PanDirection.Up, distance: 80 })
+        //     .onActionStart(() => {
+        //       if (this.isListReachEnd) {
+        //         this.getDataFromHttpRequest(false);
+        //       }
+        //     })
+        // )
       }
-      .onStateChange((refreshStatus: RefreshStatus) => {
-        console.info('Refresh onStatueChange state is ' + refreshStatus)
-      })
-      .onOffsetChange((value: number) => {
-        console.info('Refresh onOffsetChange offset:' + value)
-      })
       .onRefreshing(() => {
         this.getDataFromHttpRequest()
       })
