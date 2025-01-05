@@ -20,36 +20,43 @@ interface ClientCredentialsParam {
   grant_type: 'client_credentials'
 }
 
-function buildUrl(api: string) {
-  return `${Const.API_BASE}${api}`
-}
-
 export class HttpUtil {
   /**
    *
    * @see https://developer.huawei.com/consumer/cn/doc/harmonyos-references-V5/js-apis-http-V5#httprequestoptions
    */
   async getAndStoreToken() {
-    const httpRequest = http.createHttp();
-    const value: http.HttpResponse = await httpRequest.request(buildUrl('/token'), {
-      method: http.RequestMethod.POST,
-      header: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      // 当'content-Type'为'application/x-www-form-urlencoded'时，请求提交的信息主体数据必须在key和value进行URL转码后(encodeURIComponent/encodeURI)，
-      // 按照键值对"key1=value1&key2=value2&key3=value3"的方式进行编码，该字段对应的类型通常为String；
-      extraData: this.buildFormUrlEncoded({
-        client_id: Const.CLIENT_ID,
-        client_secret: Const.CLIENT_SECRET,
-        grant_type: "client_credentials"
-      } as ClientCredentialsParam)
-    })
-    if (value.responseCode === http.ResponseCode.OK) {
-      hilog.info(0x0000, TAG, "getAndStoreToken response %{public}s", value.result)
-      PreferencesUtil.saveToken(value.result as string)
-    } else {
-      hilog.error(0x0000, TAG, "getAndStoreToken error %{public}s", value.result)
+    try {
+      const httpRequest = http.createHttp();
+      hilog.info(0x0000, TAG, "getAndStoreToken start")
+      const value: http.HttpResponse = await httpRequest.request(this.buildUrl('/token'), {
+        method: http.RequestMethod.POST,
+        header: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        // 当'content-Type'为'application/x-www-form-urlencoded'时，请求提交的信息主体数据必须在key和value进行URL转码后(encodeURIComponent/encodeURI)，
+        // 按照键值对"key1=value1&key2=value2&key3=value3"的方式进行编码，该字段对应的类型通常为String；
+        extraData: this.buildFormUrlEncoded({
+          client_id: Const.CLIENT_ID,
+          client_secret: Const.CLIENT_SECRET,
+          grant_type: "client_credentials"
+        } as ClientCredentialsParam)
+      })
+      if (value.responseCode === http.ResponseCode.OK) {
+        hilog.info(0x0000, TAG, "getAndStoreToken response %{public}s", value.result)
+        PreferencesUtil.saveToken(value.result as string)
+      } else {
+        hilog.error(0x0000, TAG, "getAndStoreToken error %{public}s", value.result)
+      }
+    } catch (e) {
+      hilog.error(0x0000, TAG, "getAndStoreToken catch error %{public}s", JSON.stringify(e))
     }
+  }
+
+  buildUrl(api: string) {
+    const url = `${Const.API_BASE}${api}`
+    hilog.info(0x0000, TAG, "buildUrl: %{public}s", url)
+    return url;
   }
 
   /**

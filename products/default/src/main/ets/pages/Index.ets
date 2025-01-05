@@ -1,12 +1,20 @@
 import { CourseLearning } from 'learning'
-import { KnowledgeMap, KnowledgeMapContent } from 'map'
+import { KnowledgeMap } from 'map'
 import { QuickStartPage } from 'quickstart'
+import { hilog } from '@kit.PerformanceAnalysisKit'
+
+
+const TAG = 'EntryIndex'
 
 @Entry
 @Component
 struct Index {
   @State currentIndex: number = 0;
   private tabsController: TabsController = new TabsController();
+
+  aboutToAppear(): void {
+    hilog.info(0x0000, TAG, '%{public}s', 'Index aboutToAppear');
+  }
 
   @Builder
   tabBarBuilder(title: string, targetIndex: number, selectedIcon: Resource, unselectIcon: Resource) {

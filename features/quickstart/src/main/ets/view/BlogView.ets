@@ -1,79 +1,120 @@
 import { BlogClass } from "../model/BlogClass"
-import { bufferToString } from "../common/util/BufferUtil";
 import { http } from '@kit.NetworkKit';
 import { promptAction } from "@kit.ArkUI";
 import { PreferencesUtil } from "utils";
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import dayjs from 'dayjs'
 
 const httpRequest = http.createHttp();
-
+const TAG = 'BlogView';
 
 @Preview
 @Component
 export struct BlogView {
+  @State isRefreshing: boolean = false
+  @State hasMoreData: boolean = true
+  @State isLoadingMore: boolean = false
+  @State pageIndex: number = 1;
+  @State pageSize: number = 10;
   @State blogList: Array<BlogClass> = [];
   @Consume('articlePathStack') articlePathStack: NavPathStack;
 
   aboutToAppear(): void {
+    hilog.info(0x0000, TAG, 'aboutToAppear getDataFromHttpRequest')
     this.getDataFromHttpRequest()
   }
 
-  getTutorialDataFromJSON() {
-    getContext(this).resourceManager.getRawFileContent('BlogData.json').then(value => {
-      this.blogList = JSON.parse(bufferToString(value)) as BlogClass[];
-    })
-  }
-
-  getDataFromHttpRequest() {
-    const token: string = PreferencesUtil.getToken().access_token;
+  async getDataFromHttpRequest(pullDownRefresh: boolean = true) {
+    const tokenInfo = await PreferencesUtil.getToken();
+    // 下拉刷新时重置 pageIndex = 1
+    if (pullDownRefresh) {
+      this.pageIndex = 1;
+    } else {
+      this.isLoadingMore = true
+      this.pageIndex += 1;
+    }
     httpRequest.request('https://api.cnblogs.com/api/blogposts/@sitehome', {
       method: http.RequestMethod.GET,
       header: {
-        "Authorization": "Bearer " + token
+        "Authorization": "Bearer " + tokenInfo.access_token
       },
       extraData: {
-        pageIndex: 1,
-        pageSize: 10
+        pageIndex: this.pageIndex,
+        pageSize: this.pageSize
       }
     })
       .then(value => {
         if (value.responseCode === http.ResponseCode.OK) {
-          this.blogList = JSON.parse(value.result as string) as BlogClass[];
+          const blogList = JSON.parse(value.result as string) as BlogClass[];
+          // 判断是否还有更多数据
+          this.hasMoreData = blogList.length > this.pageSize
+          if (pullDownRefresh) {
+            // 下拉刷新
+            this.blogList = blogList;
+          } else {
+            // 上拉加载更多
+            this.blogList = [...this.blogList, ...blogList]
+          }
+          hilog.info(0x0000, TAG, "加载完成，获得 %{public}d 条数据", blogList.length)
+          promptAction.showToast({
+            message: '加载完成'
+          })
         } else {
-          console.error("http fail", JSON.stringify(value))
+          hilog.error(0x0000, TAG, "下拉刷新失败：%{public}s", JSON.stringify(value.result))
         }
       })
       .finally(() => {
-        httpRequest.destroy()
+        this.isRefreshing = false
+        this.isLoadingMore = false
       })
   }
 
   build() {
     Column() {
-      Text('入门教程')
-        .fontColor($r('sys.color.font_primary'))
-        .fontSize(16)
-        .fontWeight(500)
-        .fontFamily('HarmonyHeiTi-medium')
-        .textAlign(TextAlign.Start)
-        .padding({ left: 16 })
-        .margin({ bottom: 8.5 })
-      List({ space: 12 }) {
-        ForEach(this.blogList, (item: BlogClass) => {
-          ListItem() {
-            BlogItem({ blogItem: item })
-              .onClick(() => {
-                this.articlePathStack.pushPathByName('articleDetail', item)
-              })
+      // 下拉刷新
+      Refresh({ refreshing: $$this.isRefreshing }) {
+        List({ space: 12 }) {
+          ForEach(this.blogList, (item: BlogClass) => {
+            ListItem() {
+              BlogItem({ blogItem: item })
+                .onClick(() => {
+                  this.articlePathStack.pushPathByName('articleDetail', item)
+                })
+            }
+          }, (_item: BlogClass, index: number) => index.toString())
+        }
+        .padding({ left: 16, right: 16 })
+        .onReachEnd(() => {
+          // 上拉加载更多, onReachEnd 会触发多次，需要做防抖（多次触发仅执行最后一次触发）。
+          if (this.isLoadingMore) {
+            promptAction.showToast({
+              message: '请您休息一会儿，再试'
+            })
+            return
           }
-        }, (item: BlogClass) => item.Id.toString())
-      }
-      .scrollBar(BarState.Off)
-      .padding({ left: 16, right: 16 })
-      .onReachEnd(() => {
-        promptAction.showToast({
-          message: '列表已经到末尾位置了'
+          if (!this.hasMoreData) {
+            promptAction.showToast({
+              message: '没有更多数据了'
+            })
+            return
+          }
+          promptAction.showToast({
+            message: '正在加载更多...'
+          })
+          this.getDataFromHttpRequest(false);
         })
+      }
+      .onStateChange((refreshStatus: RefreshStatus) => {
+        console.info('Refresh onStatueChange state is ' + refreshStatus)
       })
+      .onOffsetChange((value: number) => {
+        console.info('Refresh onOffsetChange offset:' + value)
+      })
+      .onRefreshing(() => {
+        this.getDataFromHttpRequest()
+      })
+      .refreshOffset(64)
+      .pullToRefresh(true)
     }
     .margin({ top: 18 })
     .alignItems(HorizontalAlign.Start)
@@ -112,7 +153,7 @@ struct BlogItem {
         Text(this.blogItem.Author)
           .fontSize(13)
           .fontColor('#4e4099')
-        Text(this.blogItem.PostDate)
+        Text(dayjs(this.blogItem.PostDate).format("YYYY-MM-DD HH:mm"))
           .fontSize(13)
           .fontColor(Color.Gray)
         Text(this.blogItem.CommentCount.toString())
