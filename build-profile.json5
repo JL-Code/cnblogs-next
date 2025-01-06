@@ -5,13 +5,13 @@
         "name": "default",
         "type": "HarmonyOS",
         "material": {
-          "certpath": "C:\\Users\\codeme\\.ohos\\config\\default_cnblogs_eXed0LhO5Ait759EsyQD-cNG6c2JD_GMSL-q7G2lPw0=.cer",
-          "storePassword": "0000001B0106BC18DE8C021AFC48816A073498C1FCD72ADD88C073810CB52F754C2887F3ED73CD643C3847",
+          "certpath": "C:\\Users\\Administrator\\.ohos\\config\\default_cnblogs-next_6iZwzRwLYI3LGECFoYvLESQ9gZPprvVJyGVC5kdLy7c=.cer",
+          "storePassword": "0000001A84100B2EF4F0251356FBBB131A82B055176DE97400A7D52339834238AD3451D9AB4849C5A914",
           "keyAlias": "debugKey",
-          "keyPassword": "0000001B17C2B17592B4D5DC7292DAB47358170AC54A6D400232667CD4C0C9DA2BB2171524F80CDF9EC1D7",
-          "profile": "C:\\Users\\codeme\\.ohos\\config\\default_cnblogs_eXed0LhO5Ait759EsyQD-cNG6c2JD_GMSL-q7G2lPw0=.p7b",
+          "keyPassword": "0000001AFD9E82F098769FE7D67A9CBAB0C482B69085B735E4899ADA5359AC6DAA9DFABD845D96495BAC",
+          "profile": "C:\\Users\\Administrator\\.ohos\\config\\default_cnblogs-next_6iZwzRwLYI3LGECFoYvLESQ9gZPprvVJyGVC5kdLy7c=.p7b",
           "signAlg": "SHA256withECDSA",
-          "storeFile": "C:\\Users\\codeme\\.ohos\\config\\default_cnblogs_eXed0LhO5Ait759EsyQD-cNG6c2JD_GMSL-q7G2lPw0=.p12"
+          "storeFile": "C:\\Users\\Administrator\\.ohos\\config\\default_cnblogs-next_6iZwzRwLYI3LGECFoYvLESQ9gZPprvVJyGVC5kdLy7c=.p12"
         }
       }
     ],

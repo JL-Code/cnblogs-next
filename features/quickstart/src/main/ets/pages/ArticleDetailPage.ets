@@ -70,7 +70,7 @@ export struct ArticleDetailPage {
           })
           .onPageEnd(async () => {
             const body = await HttpUtil.getBlogBody(this.articleItem!.Id)
-            this.webController.runJavaScript('loadData(`' + this.removeQuotes(body) + '`)')
+            this.webController.runJavaScript(`loadData(${body})`)
           })
       }
       .width('100%')
