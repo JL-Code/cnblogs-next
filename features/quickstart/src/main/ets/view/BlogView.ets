@@ -105,7 +105,7 @@ export struct BlogView {
       .pullToRefresh(true)
     }
     .alignItems(HorizontalAlign.Start)
-    .padding({ top: 16, bottom: 16 })
+    .padding({ top: 16, bottom: 56 + 16 })
     .backgroundColor('#F1F3F5')
   }
 }

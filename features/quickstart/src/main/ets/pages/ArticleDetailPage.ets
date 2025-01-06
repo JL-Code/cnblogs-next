@@ -1,7 +1,7 @@
 import { webview } from "@kit.ArkWeb";
 import { HttpUtil } from "utils";
 import { BlogClass } from "../model/BlogClass";
-import { ComposeTitleBar, EditableLeftIconType, EditableTitleBar, promptAction } from "@kit.ArkUI";
+import { EditableLeftIconType, EditableTitleBar } from "@kit.ArkUI";
 
 /**
  * WebView与原生应用的连接类
@@ -41,25 +41,35 @@ export struct ArticleDetailPage {
   build() {
     NavDestination() {
       Column() {
+        // 自定义标题栏
+        // Column() {
+        //   Row() {
+        //     Image($r('app.media.ic_back'))
+        //       .width(36)
+        //     Text(this.articleItem?.Title)
+        //       .maxLines(1)
+        //   }
+        //   .height(56)
+        // }
+        // .width('60%')
+        // .justifyContent(FlexAlign.Start)
+        // .alignItems(HorizontalAlign.Start)
+
         EditableTitleBar({
-          title: this.articleItem?.Title,
+          title: this.articleItem?.Author,
+          leftIconStyle: EditableLeftIconType.Back,
           imageItem: {
             value: this.articleItem!.Avatar,
             isEnabled: true
           },
-          // 设置背景模糊效果
+          isSaveIconRequired: false,
           options: {
-            backgroundBlurStyle: BlurStyle.COMPONENT_THICK,
+            backgroundColor: Color.White
           },
           onCancel: () => {
             this.articlePathStack.pop();
           }
         })
-        //定义带头像的标题栏
-        // ComposeTitleBar({
-        //   title: this.articleItem?.Title,
-        //   item: { isEnabled: true, value: this.articleItem!.Avatar }
-        // })
         Web({ src: $rawfile('h5/index.html'), controller: this.webController, })
           .darkMode(WebDarkMode.Auto)
           .javaScriptAccess(true)
