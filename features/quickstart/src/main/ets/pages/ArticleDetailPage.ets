@@ -51,6 +51,9 @@ export struct ArticleDetailPage {
           options: {
             backgroundBlurStyle: BlurStyle.COMPONENT_THICK,
           },
+          onCancel: () => {
+            this.articlePathStack.pop();
+          }
         })
         //定义带头像的标题栏
         // ComposeTitleBar({

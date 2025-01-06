@@ -21,7 +21,7 @@ export struct BlogView {
 
   aboutToAppear(): void {
     hilog.info(0x0000, TAG, 'aboutToAppear getDataFromHttpRequest')
-    // this.getDataFromHttpRequest()
+    this.getDataFromHttpRequest()
   }
 
   async getDataFromHttpRequest(pullDownRefresh: boolean = true) {
@@ -57,9 +57,6 @@ export struct BlogView {
             this.blogList = this.blogList.concat(data)
           }
           hilog.info(0x0000, TAG, "加载完成，获得 %{public}d 条数据", data.length)
-          promptAction.showToast({
-            message: '加载完成'
-          })
         } else {
           hilog.error(0x0000, TAG, "下拉刷新失败：%{public}s", JSON.stringify(value.result))
         }
@@ -84,36 +81,22 @@ export struct BlogView {
             }
           })
         }
+        .scrollBar(BarState.Off)
         .padding({ left: 16, right: 16 })
         // @see https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/arkts-rendering-control-foreach-V5#数据源数组项发生变化
         .onReachEnd(() => {
-          // 上拉加载更多, onReachEnd 会触发多次，需要做防抖（多次触发仅执行最后一次触发）。
-          if (this.isListReachEnd) {
-            promptAction.showToast({
-              message: '请您休息一会儿，再试'
-            })
-            return
-          }
-          if (!this.hasMoreData) {
-            promptAction.showToast({
-              message: '没有更多数据了'
-            })
-            return
-          }
-          promptAction.showToast({
-            message: '正在加载更多...'
-          })
-          this.getDataFromHttpRequest(false);
+          this.isListReachEnd = true;
         })
-
-        // .parallelGesture(
-        //   PanGesture({ direction: PanDirection.Up, distance: 80 })
-        //     .onActionStart(() => {
-        //       if (this.isListReachEnd) {
-        //         this.getDataFromHttpRequest(false);
-        //       }
-        //     })
-        // )
+        // https://developer.huawei.com/consumer/cn/doc/harmonyos-guides-V5/arkts-rendering-control-foreach-V5#数据源数组项发生变化
+        .parallelGesture(
+          PanGesture({ direction: PanDirection.Up, distance: 80 })
+            .onActionStart(() => {
+              if (this.isListReachEnd) {
+                this.getDataFromHttpRequest(false);
+                this.isListReachEnd = false
+              }
+            })
+        )
       }
       .onRefreshing(() => {
         this.getDataFromHttpRequest()
@@ -121,8 +104,9 @@ export struct BlogView {
       .refreshOffset(64)
       .pullToRefresh(true)
     }
-    .margin({ top: 18 })
     .alignItems(HorizontalAlign.Start)
+    .padding({ top: 16, bottom: 16 })
+    .backgroundColor('#F1F3F5')
   }
 }
 

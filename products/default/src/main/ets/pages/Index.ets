@@ -1,6 +1,7 @@
 import { KnowledgeMap } from 'map'
 import { QuickStartPage } from 'quickstart'
 import { hilog } from '@kit.PerformanceAnalysisKit'
+import { CourseLearning } from 'learning';
 
 
 const TAG = 'EntryIndex'
@@ -44,17 +45,17 @@ struct Index {
       TabContent() {
         QuickStartPage()
       }
-      .tabBar(this.tabBarBuilder('快速入门', 0, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
+      .tabBar(this.tabBarBuilder('首页', 0, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
 
-      // TabContent() {
-      //   CourseLearning()
-      // }
-      // .tabBar(this.tabBarBuilder('课程学习', 1, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
+      TabContent() {
+        CourseLearning()
+      }
+      .tabBar(this.tabBarBuilder('闪存', 1, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
 
       TabContent() {
         KnowledgeMap()
       }
-      .tabBar(this.tabBarBuilder('知识地图', 1, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
+      .tabBar(this.tabBarBuilder('我的', 2, $r('app.media.ic_01_on'), $r('app.media.ic_01_off')))
     }
     .scrollable(false)
     .vertical(false)
