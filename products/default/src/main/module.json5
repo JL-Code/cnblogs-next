@@ -37,6 +37,15 @@
             ]
           }
         ]
+      },
+      {
+        "name": "EntryFormAbility",
+        "srcEntry": "./ets/entryformability/EntryFormAbility.ets",
+        "description": "$string:EntryFormAbility_desc",
+        "icon": "$media:icon",
+        "label": "$string:EntryFormAbility_label",
+        "startWindowIcon": "$media:startIcon",
+        "startWindowBackground": "$color:start_window_background"
       }
     ]
   }
